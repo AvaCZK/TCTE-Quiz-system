@@ -1,0 +1,494 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #e6ecff;
+  --ink-dim: #9aa8c7;
+  --void: #04060f;
+  --panel: rgba(13, 19, 40, 0.74);
+  --edge: rgba(148, 173, 255, 0.18);
+  --glow: rgba(125, 211, 252, 0.55);
+
+  /* 背景圖放大倍率：1 = 顯示完整照片。
+     想把上方的黑色天空裁掉、讓地球佔滿畫面，就調大（例如 1.18）。 */
+  --bg-zoom: 1;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  background-color: var(--void);
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--void);
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+button,
+label {
+  touch-action: manipulation;
+}
+
+::selection {
+  background: rgba(125, 211, 252, 0.3);
+}
+
+/* ------------------------------------------------------------------ */
+/* 背景圖層                                                            */
+/* ------------------------------------------------------------------ */
+
+.page-bg {
+  position: fixed;
+  /* 刻意比視窗大一圈：不管動畫怎麼縮放位移，都不會露出沒鋪到的邊 */
+  top: -5%;
+  left: -5%;
+  width: 110%;
+  height: 110%;
+  z-index: 0;
+  background-color: #060a18;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 1;
+  /* 以底部為基準縮放：--bg-zoom 調大時是往上裁掉天空，底邊永遠貼齊 */
+  transform-origin: 50% 100%;
+  animation: bg-in 1.4s ease-out both, bg-float 60s ease-in-out infinite alternate;
+}
+
+/* 只做輕微的上下壓暗，確保文字可讀，但不要把背景圖蓋掉 */
+.page-bg-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(4, 6, 15, 0.58),
+    rgba(4, 6, 15, 0.14) 34%,
+    rgba(4, 6, 15, 0.18) 62%,
+    rgba(4, 6, 15, 0.42)
+  );
+}
+
+@keyframes bg-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 只縮放、不位移；配合上面多出來的 5% 邊界，永遠填滿 */
+@keyframes bg-float {
+  from {
+    transform: scale(var(--bg-zoom));
+  }
+  to {
+    transform: scale(calc(var(--bg-zoom) + 0.06));
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* 星空                                                                */
+/* ------------------------------------------------------------------ */
+
+.starfield {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.star-layer {
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat;
+  will-change: background-position, opacity;
+}
+
+.star-layer-1 {
+  background-image:
+    radial-gradient(1.6px 1.6px at 24px 38px, #ffffff, transparent),
+    radial-gradient(1.4px 1.4px at 148px 92px, #dbeafe, transparent),
+    radial-gradient(1.8px 1.8px at 208px 176px, #ffffff, transparent),
+    radial-gradient(1.2px 1.2px at 72px 214px, #bae6fd, transparent);
+  background-size: 260px 260px;
+  opacity: 0.9;
+  animation: drift-1 150s linear infinite, twinkle 4.5s ease-in-out infinite alternate;
+}
+
+.star-layer-2 {
+  background-image:
+    radial-gradient(1.1px 1.1px at 40px 120px, rgba(255, 255, 255, 0.85), transparent),
+    radial-gradient(1px 1px at 180px 40px, rgba(196, 181, 253, 0.9), transparent),
+    radial-gradient(1.3px 1.3px at 120px 300px, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 300px 200px, rgba(147, 197, 253, 0.85), transparent);
+  background-size: 380px 380px;
+  opacity: 0.7;
+  animation: drift-2 260s linear infinite, twinkle 6.5s ease-in-out infinite alternate-reverse;
+}
+
+.star-layer-3 {
+  background-image:
+    radial-gradient(0.8px 0.8px at 60px 60px, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(0.8px 0.8px at 260px 160px, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(0.9px 0.9px at 420px 340px, rgba(253, 230, 138, 0.7), transparent);
+  background-size: 520px 520px;
+  opacity: 0.55;
+  animation: drift-3 380s linear infinite, twinkle 9s ease-in-out infinite alternate;
+}
+
+@keyframes drift-1 {
+  to {
+    background-position: 0 -260px;
+  }
+}
+@keyframes drift-2 {
+  to {
+    background-position: -380px -380px;
+  }
+}
+@keyframes drift-3 {
+  to {
+    background-position: 520px -520px;
+  }
+}
+
+@keyframes twinkle {
+  0% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.nebula {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  will-change: transform, opacity;
+}
+
+.nebula-1 {
+  top: -12%;
+  left: -10%;
+  width: 55vw;
+  height: 55vw;
+  background: radial-gradient(circle, rgba(79, 70, 229, 0.32), transparent 70%);
+  animation: nebula-pulse 18s ease-in-out infinite alternate;
+}
+
+.nebula-2 {
+  bottom: -18%;
+  right: -14%;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.24), transparent 70%);
+  animation: nebula-pulse 24s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes nebula-pulse {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+    opacity: 0.55;
+  }
+  to {
+    transform: scale(1.25) translate3d(2%, 3%, 0);
+    opacity: 1;
+  }
+}
+
+/* 流星 */
+.meteor {
+  position: absolute;
+  top: -15%;
+  width: 2px;
+  height: 130px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(224, 242, 254, 0.95));
+  border-radius: 9999px;
+  filter: drop-shadow(0 0 6px rgba(186, 230, 253, 0.9));
+  opacity: 0;
+  animation-name: meteor;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.7, 1);
+  animation-iteration-count: infinite;
+}
+
+.meteor-1 {
+  left: 12%;
+  animation-duration: 9s;
+  animation-delay: 1s;
+}
+.meteor-2 {
+  left: 52%;
+  animation-duration: 13s;
+  animation-delay: 5s;
+}
+.meteor-3 {
+  left: 78%;
+  animation-duration: 17s;
+  animation-delay: 9s;
+}
+
+@keyframes meteor {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(32deg);
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  24% {
+    opacity: 1;
+  }
+  32%,
+  100% {
+    transform: translate3d(38vw, 108vh, 0) rotate(32deg);
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* 元件樣式                                                            */
+/* ------------------------------------------------------------------ */
+
+@layer components {
+  .shell {
+    position: relative;
+    z-index: 10;
+  }
+
+  .panel {
+    border-radius: 1.25rem;
+    border: 1px solid var(--edge);
+    background: var(--panel);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 18px 60px -24px rgba(2, 6, 23, 0.95);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 64px;
+    padding: 0 1.75rem;
+    border-radius: 1rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    transition: transform 0.15s ease, box-shadow 0.25s ease, background-color 0.2s ease;
+  }
+
+  .btn:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    color: #f0f9ff;
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    box-shadow: 0 0 0 1px rgba(148, 173, 255, 0.25), 0 12px 34px -12px rgba(59, 130, 246, 0.9);
+  }
+
+  .btn-primary:not(:disabled):hover {
+    box-shadow: 0 0 0 1px rgba(186, 230, 253, 0.45), 0 16px 40px -10px rgba(99, 102, 241, 1);
+  }
+
+  .btn-success {
+    color: #ecfdf5;
+    background: linear-gradient(135deg, #059669, #0891b2);
+    box-shadow: 0 0 0 1px rgba(110, 231, 183, 0.28), 0 12px 34px -12px rgba(16, 185, 129, 0.9);
+  }
+
+  .btn-ghost {
+    color: var(--ink);
+    border: 1px solid var(--edge);
+    background: rgba(15, 23, 42, 0.55);
+  }
+
+  .btn-ghost:not(:disabled):hover {
+    background: rgba(30, 41, 59, 0.75);
+    border-color: rgba(186, 230, 253, 0.45);
+  }
+
+  .field {
+    width: 100%;
+    border-radius: 1rem;
+    border: 1px solid var(--edge);
+    background: rgba(2, 6, 23, 0.6);
+    color: var(--ink);
+    padding: 1rem;
+    line-height: 1.65;
+  }
+
+  .field::placeholder {
+    color: rgba(148, 163, 184, 0.55);
+  }
+
+  .field:focus {
+    outline: none;
+    border-color: rgba(125, 211, 252, 0.8);
+    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
+  }
+
+  .option-card {
+    display: flex;
+    width: 100%;
+    align-items: flex-start;
+    gap: 1rem;
+    border-radius: 1.25rem;
+    border: 1px solid var(--edge);
+    background: rgba(15, 23, 42, 0.55);
+    padding: 1.25rem;
+    text-align: left;
+    font-size: 1.5rem;
+    line-height: 1.6;
+    color: var(--ink);
+    transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.25s ease,
+      background-color 0.2s ease;
+  }
+
+  .option-card:active {
+    transform: scale(0.985);
+  }
+
+  .option-card-selected {
+    border-color: rgba(125, 211, 252, 0.9);
+    background: rgba(30, 58, 138, 0.45);
+    box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.5), 0 0 34px -6px var(--glow);
+  }
+
+  .option-key {
+    display: flex;
+    height: 3rem;
+    width: 3rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: rgba(51, 65, 85, 0.8);
+    color: #cbd5e1;
+    transition: all 0.2s ease;
+  }
+
+  .option-key-selected {
+    background: linear-gradient(135deg, #38bdf8, #818cf8);
+    color: #041027;
+    box-shadow: 0 0 20px -2px var(--glow);
+  }
+
+  .title-glow {
+    background: linear-gradient(120deg, #e0f2fe, #a5b4fc 45%, #f0abfc);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 38px rgba(129, 140, 248, 0.45), 0 3px 22px rgba(2, 6, 23, 0.9);
+  }
+
+  /* 直接壓在背景照片上的文字，加一層陰影確保可讀 */
+  .on-photo {
+    text-shadow: 0 2px 16px rgba(2, 6, 23, 0.92), 0 0 6px rgba(2, 6, 23, 0.7);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* 進場動畫                                                            */
+/* ------------------------------------------------------------------ */
+
+.rise {
+  animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.rise-1 {
+  animation-delay: 0.06s;
+}
+.rise-2 {
+  animation-delay: 0.14s;
+}
+.rise-3 {
+  animation-delay: 0.22s;
+}
+.rise-4 {
+  animation-delay: 0.3s;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.pop {
+  animation: pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.progress-glow {
+  background: linear-gradient(90deg, #38bdf8, #818cf8, #e879f9);
+  background-size: 200% 100%;
+  animation: shimmer 3.5s linear infinite;
+  box-shadow: 0 0 18px -2px var(--glow);
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* KaTeX 深色 */
+.katex {
+  color: var(--ink);
+}
+
+/* 尊重系統的減少動態設定 */
+@media (prefers-reduced-motion: reduce) {
+  .page-bg,
+  .star-layer,
+  .nebula,
+  .meteor,
+  .rise,
+  .pop,
+  .progress-glow {
+    animation: none !important;
+  }
+  /* 關掉動畫後仍要保留放大，否則黑色天空會跑回來 */
+  .page-bg {
+    transform: scale(var(--bg-zoom));
+    opacity: 1;
+  }
+  .meteor {
+    display: none;
+  }
+  .rise,
+  .pop {
+    opacity: 1;
+    transform: none;
+  }
+}

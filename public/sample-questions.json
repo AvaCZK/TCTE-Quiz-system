@@ -1,0 +1,180 @@
+{
+  "version": "1.0",
+  "questions": [
+    {
+      "id": 1,
+      "subject": "經濟學",
+      "unit": "供給與需求",
+      "content": [
+        {
+          "type": "text",
+          "text": "下圖為某商品市場的供需圖形。當需求由 D1 增加為 D2 時，關於新均衡的敘述，下列何者正確？"
+        },
+        {
+          "type": "econ_graph",
+          "title": "需求增加對均衡的影響",
+          "xLabel": "數量 Q",
+          "yLabel": "價格 P",
+          "curves": [
+            {
+              "name": "S",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 1
+                },
+                {
+                  "x": 10,
+                  "y": 9
+                }
+              ]
+            },
+            {
+              "name": "D1",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 9
+                },
+                {
+                  "x": 9,
+                  "y": 1
+                }
+              ]
+            },
+            {
+              "name": "D2",
+              "points": [
+                {
+                  "x": 2,
+                  "y": 10
+                },
+                {
+                  "x": 11,
+                  "y": 2
+                }
+              ]
+            }
+          ],
+          "points": [
+            {
+              "name": "E1",
+              "x": 4.5,
+              "y": 4.6
+            },
+            {
+              "name": "E2",
+              "x": 6.2,
+              "y": 6
+            }
+          ]
+        }
+      ],
+      "options": {
+        "A": "均衡價格上升、均衡數量減少",
+        "B": "均衡價格上升、均衡數量增加",
+        "C": "均衡價格下降、均衡數量增加",
+        "D": "均衡價格下降、均衡數量減少"
+      }
+    },
+    {
+      "id": 2,
+      "subject": "經濟學",
+      "unit": "彈性",
+      "content": [
+        {
+          "type": "text",
+          "text": "已知需求的價格彈性公式如下。若價格由 100 元降為 90 元，需求量由 200 單位增為 240 單位，則需求價格彈性（取絕對值）為何？"
+        },
+        {
+          "type": "latex",
+          "formula": "E_d = \\left| \\frac{\\Delta Q / Q}{\\Delta P / P} \\right|"
+        }
+      ],
+      "options": {
+        "A": "0.5",
+        "B": "1.0",
+        "C": "2.0",
+        "D": "4.0"
+      }
+    },
+    {
+      "id": 3,
+      "subject": "會計學",
+      "unit": "會計方程式",
+      "content": [
+        {
+          "type": "text",
+          "text": "下表為甲公司年底之部分資料，試問業主權益為多少？"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "項目",
+            "金額（元）"
+          ],
+          "rows": [
+            [
+              "資產總額",
+              850000
+            ],
+            [
+              "負債總額",
+              320000
+            ]
+          ]
+        }
+      ],
+      "options": {
+        "A": "320,000 元",
+        "B": "530,000 元",
+        "C": "850,000 元",
+        "D": "1,170,000 元"
+      }
+    },
+    {
+      "id": 4,
+      "subject": "商業概論",
+      "unit": "企業組織型態",
+      "content": [
+        {
+          "type": "text",
+          "text": "關於股份有限公司的敘述，下列何者正確？"
+        }
+      ],
+      "options": {
+        "A": "股東須對公司債務負無限清償責任",
+        "B": "股東人數上限為七人",
+        "C": "股東以其所認股份為限，對公司負其責任",
+        "D": "公司不得公開發行股票"
+      }
+    },
+    {
+      "id": 5,
+      "subject": "經濟學",
+      "unit": "成本理論",
+      "content": [
+        {
+          "type": "text",
+          "text": "下列有關短期平均總成本（ATC）與邊際成本（MC）關係的敘述，何者正確？"
+        },
+        {
+          "type": "latex",
+          "formula": "ATC = \\frac{TC}{Q}, \\quad MC = \\frac{\\Delta TC}{\\Delta Q}"
+        }
+      ],
+      "options": {
+        "A": "MC 曲線必通過 ATC 曲線的最低點",
+        "B": "MC 大於 ATC 時，ATC 必然下降",
+        "C": "ATC 最低點必等於 MC 最低點",
+        "D": "MC 曲線恆在 ATC 曲線之上"
+      }
+    }
+  ],
+  "validation": {
+    "version": "1",
+    "algorithm": "deflate-raw+xor-seed+base64",
+    "seed": "starlight-2026",
+    "payload": "2CJTJt47FTqmfABigGQBIrMjXu+VJdRRYRUZEzTRO3I="
+  }
+}
