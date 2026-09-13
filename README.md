@@ -1,6 +1,10 @@
 # TCTE QUIZ
 
-統測商管群的刷題網站。深色星空主題，為 iPad 設計。
+> 此網站使用 Claude Code Opus 5 輔助開發。
+
+單選題刷題網站。深色星空主題，為 iPad 設計。
+
+科目和單元都寫在題目 JSON 裡，網站本身不綁任何科目 — 只要照格式給題目，任何科目都能用。
 
 沒有登入、沒有帳號、沒有後端、沒有資料庫。整個站是一包靜態檔案，
 作答紀錄只存在你自己的瀏覽器裡。
@@ -19,7 +23,26 @@ GPT 出題  →  貼上 JSON  →  在網站作答  →  送出
 **題目 JSON 裡不會出現答案。** 正確答案經過編碼放在最外層的 `validation` 欄位，
 所以你把題目貼來貼去的時候，不會不小心瞄到答案。
 
+## 支援環境
+
+| 環境 | 狀態 |
+| --- | --- |
+| Chromium 系瀏覽器（Chrome、Edge 等），1K／2K 解析度 | 支援 |
+| iPad Pro 11 吋，Safari | 支援 |
+| 其他解析度或瀏覽器 | 不保證提供技術支援 |
+
 ## 快速開始
+
+### 方法一：直接開網站（推薦）
+
+```
+https://avaczk.github.io/TCTE-Quiz-system/
+```
+
+什麼都不用裝。iPad Safari 開啟後，按分享 →「加入主畫面」，
+就會在主畫面出現 App 圖示，點開是全螢幕，用起來跟原生 App 一樣。
+
+### 方法二：本地部署
 
 需要 Node.js 18 以上。
 
@@ -30,7 +53,7 @@ npm run dev
 
 打開 http://localhost:3000 。
 
-用 iPad 開（iPad 和電腦要在同一個 Wi-Fi）：
+想用 iPad 連本機的話（iPad 和電腦要在同一個 Wi-Fi）：
 
 ```bash
 npm run dev -- -H 0.0.0.0
@@ -38,6 +61,8 @@ npm run dev -- -H 0.0.0.0
 
 查電腦 IP（Mac `ipconfig getifaddr en0`／Windows `ipconfig` 看 IPv4），
 iPad Safari 開 `http://192.168.x.x:3000`。
+
+---
 
 第一次試用：把 `public/sample-questions.json` 的內容整份複製貼進首頁的框框，
 按「驗證題目格式」→「開始作答」。那份範例有 5 題，四種 block 都用到了。
@@ -113,7 +138,7 @@ GPT 沒辦法自己算 DEFLATE，所以分兩步：**先讓 GPT 出含答案的�
 ### 1. 讓 GPT 產生草稿
 
 ```
-請幫我出 20 題統測商管群單選題，科目：經濟學，單元：供給與需求。
+請幫我出 20 題單選題，科目：經濟學，單元：供給與需求。
 直接輸出一個 JSON 物件，不要有任何說明文字、不要用 markdown code block。
 
 格式：
@@ -206,28 +231,6 @@ npm test
 - 錯誤處理：無效 Base64、空 seed、錯誤 seed、payload 損毀、version／algorithm 不符
 - 匯入流程：缺少某題答案、題目含 `answer` 欄位、id 重複、缺少 `validation`
 
-## 背景圖與外觀
-
-三張背景圖放在 `public/image/`：
-
-| 檔案 | 用在哪 |
-| --- | --- |
-| `public/image/home.jpg` | 匯入題目頁 |
-| `public/image/quiz.jpg` | 作答頁 |
-| `public/image/result.jpg` | 結果頁 |
-
-換成自己的圖就直接用同檔名覆蓋。沒有圖也不會破版，只會看到純 CSS 的星空動畫。
-
-太空照常常上半部是一大片黑，看起來像沒鋪滿。`src/app/globals.css` 開頭有一個旋鈕：
-
-```css
---bg-zoom: 1;    /* 1 = 顯示完整照片
-                    調大（例如 1.18）= 以底邊為基準放大，把上方的黑天空裁掉 */
-```
-
-背景層刻意做得比視窗大一圈，所以不管怎麼縮放都不會露出沒鋪到的邊。
-壓暗的程度改 `.page-bg-veil` 裡的 `rgba(4, 6, 15, 0.xx)`，數字越小越亮。
-
 ## 部署
 
 `npm run build` 會產生純靜態的 `out/`，丟哪裡都行。
@@ -240,7 +243,7 @@ GitHub Pages 的自動部署已經設定好了，詳細步驟看 **[DEPLOY.md](.
 .github/workflows/deploy.yml   push 到 main 自動部署 GitHub Pages
 scripts/encode-answers.mjs     草稿 → 正式題組（產生 validation）
 src/app/
-  layout.tsx        共用版面（載入 KaTeX CSS）
+  layout.tsx        共用版面、主畫面圖示與全螢幕設定
   globals.css       深色星空主題、星點／流星／星雲動畫
   page.tsx          匯入題目頁
   quiz/page.tsx     作答頁
@@ -258,7 +261,11 @@ src/lib/
   report.ts         計分 + 產生貼回 GPT 的分析文字
   asset.ts          basePath 處理
 public/
-  image/            home.jpg / quiz.jpg / result.jpg
+  image/
+    icon.png        加入主畫面後顯示的 App 圖示（180×180）
+    home.jpg        匯入題目頁背景
+    quiz.jpg        作答頁背景
+    result.jpg      結果頁背景
   sample-questions.json
   .nojekyll
 ```
