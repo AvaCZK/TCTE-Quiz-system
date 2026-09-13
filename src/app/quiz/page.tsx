@@ -82,7 +82,7 @@ export default function QuizPage() {
     <>
       <PageBackground src={BACKGROUNDS.quiz} />
 
-      <main className="shell mx-auto w-full max-w-4xl px-5 pb-40 pt-7">
+      <main className="shell mx-auto w-full max-w-4xl px-5 pb-40 pt-7 min-[1180px]:pb-16">
         <div className="rise rise-1">
           <div className="on-photo flex items-baseline justify-between">
             <p className="text-2xl font-bold text-slate-100">
@@ -158,7 +158,46 @@ export default function QuizPage() {
           </div>
         </section>
 
-        <div className="fixed inset-x-0 bottom-0 z-20 px-5 py-4">
+        {/* 寬螢幕：按鈕移到右側空白處，不會蓋到題目、選項或題號 */}
+        <nav className="fixed right-5 top-1/2 z-20 hidden w-28 -translate-y-1/2 flex-col gap-3 min-[1180px]:flex">
+          <button
+            type="button"
+            onClick={() => goTo(index - 1)}
+            disabled={index === 0}
+            className="btn btn-ghost !min-h-[76px] w-full !px-0 !text-xl"
+          >
+            上一題
+          </button>
+
+          {index < questions.length - 1 ? (
+            <button
+              type="button"
+              onClick={() => goTo(index + 1)}
+              className="btn btn-primary !min-h-[76px] w-full !px-0 !text-xl"
+            >
+              下一題
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => router.push("/result")}
+                disabled={!allAnswered}
+                className="btn btn-success !min-h-[76px] w-full !px-0 !text-xl"
+              >
+                送出答案
+              </button>
+              {!allAnswered && (
+                <p className="on-photo text-center text-sm leading-snug text-slate-300/80">
+                  還有 {questions.length - answeredCount} 題未作答
+                </p>
+              )}
+            </>
+          )}
+        </nav>
+
+        {/* 窄螢幕：維持底部橫向按鈕列 */}
+        <div className="fixed inset-x-0 bottom-0 z-20 px-5 py-4 min-[1180px]:hidden">
           <div className="mx-auto flex w-full max-w-4xl items-center gap-3">
             <button
               type="button"

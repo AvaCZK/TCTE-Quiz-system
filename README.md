@@ -133,61 +133,83 @@ iPad Safari 開 `http://192.168.x.x:3000`。
 
 ## 怎麼出題
 
-GPT 沒辦法自己算 DEFLATE，所以分兩步：**先讓 GPT 出含答案的草稿，再用工具轉檔。**
+兩種做法。**如果你的 GPT 可以執行 Python（ChatGPT 的資料分析／Code Interpreter），
+用方法一就好** — 它會自己把答案編碼完成，輸出可以直接貼進網站的完整 JSON。
 
-### 1. 讓 GPT 產生草稿
+### 方法一：請 GPT 直接產生完整題組（推薦）
+
+把下面這段整個貼給 GPT，科目、單元、題數自己換：
 
 ```
 請幫我出 20 題單選題，科目：經濟學，單元：供給與需求。
-直接輸出一個 JSON 物件，不要有任何說明文字、不要用 markdown code block。
 
-格式：
+輸出一個 JSON 物件，直接給我 JSON 本體，不要任何說明文字、不要用 markdown code block。
+
+結構：
 {
-  "title": "經濟學 - 供給與需求",
+  "version": "1.0.0",
+  "title": "題組名稱",
   "questions": [
     {
       "id": 1,
-      "subject": "經濟學",
-      "unit": "供給與需求",
+      "subject": "科目名稱",
+      "unit": "單元名稱",
       "content": [ Block ],
-      "options": { "A": "...", "B": "...", "C": "...", "D": "..." },
-      "answer": "A"
+      "options": { "A": "...", "B": "...", "C": "...", "D": "..." }
     }
-  ]
+  ],
+  "validation": { ... 見第 4 點 ... }
 }
 
-Block 只能是以下四種：
-{ "type": "text", "text": "..." }
-{ "type": "table", "headers": ["..."], "rows": [["...", 數字]] }
-{ "type": "latex", "formula": "LaTeX 語法，反斜線要跳脫成 \\\\" }
-{ "type": "econ_graph", "title": "...", "xLabel": "...", "yLabel": "...",
-  "curves": [{ "name": "D", "points": [{"x":0,"y":10},{"x":10,"y":0}] }],
-  "points": [{ "name": "E", "x": 5, "y": 5 }] }
+規則：
+
+1. questions 裡絕對不能出現 answer、correctAnswer、solution 等任何會洩漏答案的欄位。
+2. id 必填，不可重複。
+3. content 的 Block 只能是以下四種：
+   { "type": "text", "text": "..." }
+   { "type": "table", "headers": ["..."], "rows": [["...", 數字]] }
+   { "type": "latex", "formula": "LaTeX 語法，反斜線要跳脫成 \\\\" }
+   { "type": "econ_graph", "title": "...", "xLabel": "...", "yLabel": "...",
+     "curves": [{ "name": "D", "points": [{"x":0,"y":10},{"x":10,"y":0}] }],
+     "points": [{ "name": "E", "x": 5, "y": 5 }] }
+4. 正確答案放在最外層的 validation。請「實際執行」下面這段 Python 算出結果，
+   不要自己推測輸出：
+
+   import json, zlib, base64, secrets
+   answers = {"1": "C", "2": "A"}     # 換成你出的題目的答案，key 是 id 轉成字串
+   seed = secrets.token_urlsafe(9)
+   co = zlib.compressobj(9, zlib.DEFLATED, -15)   # -15 = raw deflate，不是 gzip
+   comp = co.compress(json.dumps(answers, separators=(",", ":")).encode()) + co.flush()
+   key = seed.encode()
+   xored = bytes(b ^ key[i % len(key)] for i, b in enumerate(comp))
+   print(seed, base64.b64encode(xored).decode())
+
+   然後填進去：
+   "validation": {
+     "version": "1",
+     "algorithm": "deflate-raw+xor-seed+base64",
+     "seed": "<印出來的 seed>",
+     "payload": "<印出來的 base64>"
+   }
 ```
 
-### 2. 轉成正式題組
+拿到 JSON 之後直接貼進網站首頁，按「驗證題目格式」。
+如果 payload 算錯了，網站會擋下來並顯示「題目答案資料損毀或格式不相容」，
+不會讓你帶著壞掉的答案開始作答。
 
-存成 `draft.json`，然後：
+### 方法二：GPT 只出草稿，本機轉檔
+
+GPT 不能執行程式碼的話，就讓它照方法一的格式出題，但**每題直接寫 `answer`、
+不要 validation**，存成 `draft.json`，然後：
 
 ```bash
 npm run encode -- draft.json --seed=my-seed --out=set.json
 ```
 
 `set.json` 裡的 `answer` 會被拿掉，正確答案改放到最外層的 `validation`。
-把 `set.json` 的內容貼進網站就可以了。
+把 `set.json` 的內容貼進網站即可。
 
-如果你的 GPT 可以執行 Python，也能請它直接算 payload：
-
-```python
-import json, zlib, base64
-answers = {"1": "C", "2": "A"}
-seed = "my-seed"
-raw = zlib.compressobj(9, zlib.DEFLATED, -15)          # -15 = raw deflate
-comp = raw.compress(json.dumps(answers, separators=(",", ":")).encode()) + raw.flush()
-key = seed.encode()
-xored = bytes(b ^ key[i % len(key)] for i, b in enumerate(comp))
-print(base64.b64encode(xored).decode())
-```
+`--seed` 可以省略，會自動產生一組隨機的。
 
 ## Answer Payload Protocol v1
 
